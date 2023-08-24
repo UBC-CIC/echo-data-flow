@@ -96,6 +96,7 @@ When a CT-Scan is submitted to be processed, a Lambda function is triggered to m
 ```bash
 deploy.sh 
 ```
+(make sure your caller identity is setup, verify using ```aws sts get-caller-identity```)
 
 This command launches a series of action that includes running a docker to retrieve Pydicom and create the layer file to be used on the lambda function.
 
