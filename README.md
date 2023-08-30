@@ -13,12 +13,6 @@ Echo Cloud is an automated application for the storage and processing of echocar
 
 <img src="./images/Architecture.png"  width="800"/>
 
-## User interface
-
-<img src="./images/UserInterface.png"  width="800"/>
-
-<img src="./images/CTResult.png"  width="800"/>
-
 # Deployment
 To deploy this solution into your AWS Account please follow our [Deployment Guide](./docs/deployment_guide.md)
 
