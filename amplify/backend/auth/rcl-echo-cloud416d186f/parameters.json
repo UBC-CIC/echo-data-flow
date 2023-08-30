@@ -1,8 +1,8 @@
 {
-    "identityPoolName": "covid19l3netapp416d186f_identitypool_416d186f",
+    "identityPoolName": "rcl-echo-cloud416d186f_identitypool_416d186f",
     "allowUnauthenticatedIdentities": false,
-    "resourceNameTruncated": "covid1416d186f",
-    "userPoolName": "covid19l3netapp416d186f_userpool_416d186f",
+    "resourceNameTruncated": "rcl-echo-cloud1416d186f",
+    "userPoolName": "rcl-echo-cloud416d186f_userpool_416d186f",
     "autoVerifiedAttributes": [
         "email"
     ],
@@ -28,10 +28,10 @@
     "userpoolClientReadAttributes": [
         "email"
     ],
-    "userpoolClientLambdaRole": "covid1416d186f_userpoolclient_lambda_role",
+    "userpoolClientLambdaRole": "rcl-echo-cloud1416d186f_userpoolclient_lambda_role",
     "userpoolClientSetAttributes": false,
     "sharedId": "416d186f",
-    "resourceName": "covid19l3netapp416d186f",
+    "resourceName": "rcl-echo-cloud416d186f",
     "authSelections": "identityPoolAndUserPool",
     "authRoleArn": {
         "Fn::GetAtt": [

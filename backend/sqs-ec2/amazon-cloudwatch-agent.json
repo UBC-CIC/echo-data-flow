@@ -34,7 +34,7 @@
 				"collect_list": [
 					{
 						"file_path": "/var/log/messages",
-						"log_group_name": "covid19-instances-backend-logs",
+						"log_group_name": "rcl-echo-cloud-instances-backend-logs",
 						"log_stream_name": "{instance_id}"
 					}
 				]

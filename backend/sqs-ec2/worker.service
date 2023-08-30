@@ -5,7 +5,7 @@
 # https://www.freedesktop.org/software/systemd/man/systemd.unit.html
 
 [Unit]
-Description=COVID19-L3-Net Worker 
+Description=rcl-echo-cloud Worker 
 After=network.target
 
 [Service]

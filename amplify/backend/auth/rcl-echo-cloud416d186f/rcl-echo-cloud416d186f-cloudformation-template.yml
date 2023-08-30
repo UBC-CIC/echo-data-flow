@@ -106,7 +106,7 @@ Resources:
   # Created to allow the UserPool SMS Config to publish via the Simple Notification Service during MFA Process
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !If [ShouldNotCreateEnvResources, 'covid1416d186f_sns-role', !Join ['',[ 'sns', '416d186f', !Select [3, !Split ['-', !Ref 'AWS::StackName']], '-', !Ref env]]]
+      RoleName: !If [ShouldNotCreateEnvResources, 'rcl-echo-cloud1416d186f_sns-role', !Join ['',[ 'sns', '416d186f', !Select [3, !Split ['-', !Ref 'AWS::StackName']], '-', !Ref env]]]
       AssumeRolePolicyDocument: 
         Version: "2012-10-17"
         Statement: 
@@ -118,10 +118,10 @@ Resources:
               - "sts:AssumeRole"
             Condition: 
               StringEquals:
-                sts:ExternalId: covid1416d186f_role_external_id
+                sts:ExternalId: rcl-echo-cloud1416d186f_role_external_id
       Policies: 
         - 
-          PolicyName: covid1416d186f-sns-policy
+          PolicyName: rcl-echo-cloud1416d186f-sns-policy
           PolicyDocument: 
             Version: "2012-10-17"
             Statement: 
@@ -169,7 +169,7 @@ Resources:
       SmsVerificationMessage: !Ref smsVerificationMessage
       SmsConfiguration: 
         SnsCallerArn: !GetAtt SNSRole.Arn
-        ExternalId: covid1416d186f_role_external_id
+        ExternalId: rcl-echo-cloud1416d186f_role_external_id
     
   
   UserPoolClientWeb:
@@ -177,7 +177,7 @@ Resources:
   # Depends on UserPool for ID reference
     Type: "AWS::Cognito::UserPoolClient"
     Properties:
-      ClientName: covid1416d186f_app_clientWeb
+      ClientName: rcl-echo-cloud1416d186f_app_clientWeb
       
       RefreshTokenValidity: !Ref userpoolClientRefreshTokenValidity
       UserPoolId: !Ref UserPool
@@ -187,7 +187,7 @@ Resources:
   # Depends on UserPool for ID reference
     Type: "AWS::Cognito::UserPoolClient"
     Properties:
-      ClientName: covid1416d186f_app_client
+      ClientName: rcl-echo-cloud1416d186f_app_client
       
       GenerateSecret: !Ref userpoolClientGenerateSecret
       RefreshTokenValidity: !Ref userpoolClientRefreshTokenValidity
@@ -252,7 +252,7 @@ Resources:
   # Marked as depending on UserPoolClientRole for easier to understand CFN sequencing
     Type: 'AWS::IAM::Policy'
     Properties:
-      PolicyName: covid1416d186f_userpoolclient_lambda_iam_policy
+      PolicyName: rcl-echo-cloud1416d186f_userpoolclient_lambda_iam_policy
       Roles: 
         - !Ref UserPoolClientRole
       PolicyDocument:
@@ -269,7 +269,7 @@ Resources:
   # Marked as depending on UserPoolClientLambdaPolicy for easier to understand CFN sequencing
     Type: 'AWS::IAM::Policy'
     Properties:
-      PolicyName: covid1416d186f_userpoolclient_lambda_log_policy
+      PolicyName: rcl-echo-cloud1416d186f_userpoolclient_lambda_log_policy
       Roles: 
         - !Ref UserPoolClientRole
       PolicyDocument:
@@ -309,7 +309,7 @@ Resources:
   # Always created
     Type: AWS::Cognito::IdentityPool
     Properties: 
-      IdentityPoolName: !If [ShouldNotCreateEnvResources, 'covid19l3netapp416d186f_identitypool_416d186f', !Join ['',['covid19l3netapp416d186f_identitypool_416d186f', '__', !Ref env]]]
+      IdentityPoolName: !If [ShouldNotCreateEnvResources, 'rcl-echo-cloud416d186f_identitypool_416d186f', !Join ['',['rcl-echo-cloud416d186f_identitypool_416d186f', '__', !Ref env]]]
       
       CognitoIdentityProviders:
         - ClientId:  !Ref UserPoolClient

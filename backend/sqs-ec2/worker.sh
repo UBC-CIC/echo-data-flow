@@ -138,12 +138,12 @@ function start_process_model() {
   local ATTEMPT=0
   local RESULT=""
 
-  if [[ $CONTAINER_STATUS == covid-19* ]]; then
+  if [[ $CONTAINER_STATUS == rcl-echo-cloud* ]]; then
     logger "$0:docker is already up!"
     exit
   fi
-  logger "$0:-------------- Starting container model covid-19-api:$TAG --------------"
-  CONTAINERID="$(docker run --runtime nvidia -p 80:80 --network 'host' -d --restart always covid-19-api:$TAG)"
+  logger "$0:-------------- Starting container model rcl-echo-cloud-api:$TAG --------------"
+  CONTAINERID="$(docker run --runtime nvidia -p 80:80 --network 'host' -d --restart always rcl-echo-cloud-api:$TAG)"
   logger "$0:-------------- Container started --------------"  
   while [ $ATTEMPT -le 8 ]; do
       ATTEMPT=$(( $ATTEMPT + 1 ))
@@ -168,12 +168,12 @@ function start_process_model() {
 GITBRANCH=%BRANCH%
 INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
 REGION="$(curl -s http://169.254.169.254/latest/meta-data/local-hostname | cut -d . -f 2)"
-CLOUDFRONT="https://$(aws ssm get-parameter --name "/covid19l3/$GITBRANCH/cloudfrontdomain" --query Parameter.Value --output text)"
-SQSVPCE=$(aws ssm get-parameter --name "/covid19l3/$GITBRANCH/sqsvpce" --query Parameter.Value --output text)
+CLOUDFRONT="https://$(aws ssm get-parameter --name "/rcl-echo-cloud/$GITBRANCH/cloudfrontdomain" --query Parameter.Value --output text)"
+SQSVPCE=$(aws ssm get-parameter --name "/rcl-echo-cloud/$GITBRANCH/sqsvpce" --query Parameter.Value --output text)
 SQSURL=$(echo $SQSVPCE | cut -d':' -f2)
-SQSNAME=$(aws ssm get-parameter --name "/covid19l3/$GITBRANCH/sqsname" --query Parameter.Value --output text)
+SQSNAME=$(aws ssm get-parameter --name "/rcl-echo-cloud/$GITBRANCH/sqsname" --query Parameter.Value --output text)
 SQSQUEUE="https://$SQSURL/$SQSNAME"
-WORKING_DIR=/root/covid-19-app/backend/sqs-ec2
+WORKING_DIR=/root/rcl-echo-cloud-app/backend/sqs-ec2
 AUTOSCALINGGROUP=$(aws ec2 describe-tags --filters "Name=resource-id,Values=$INSTANCE_ID" "Name=key,Values=aws:autoscaling:groupName" | jq -r '.Tags[0].Value')
 
 logger "$0:  -------------- INSTANCE_ID: $INSTANCE_ID - CLOUDFRONT: $CLOUDFRONT - SQSQUEUE: $SQSQUEUE"
@@ -249,7 +249,7 @@ while :;do
           exit
         fi 
 
-        if [ -z "$(aws s3 ls $S3BUCKET/public/sapien/$VERSION/sapiencovid_demo.js)" ]; then
+        if [ -z "$(aws s3 ls $S3BUCKET/public/sapien/$VERSION/sapienrcl-echo-cloud_demo.js)" ]; then
           logger "$0: Copying sapien/$VERSION plugin files to S3"
           aws s3 cp --quiet --recursive $WORKING_DIR/sapien/$VERSION/ s3://$S3BUCKET/public/sapien/$VERSION/
         fi

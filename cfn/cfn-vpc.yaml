@@ -230,7 +230,7 @@ Resources:
       Type: AWS::EC2::SecurityGroup
       Properties:
         GroupName: security-group
-        GroupDescription: Default Security Group for covid-19 app
+        GroupDescription: Default Security Group for rcl-echo-cloud
         VpcId: !Ref vpc
   
   #adding this to avoid circular dependency
@@ -244,7 +244,7 @@ Resources:
   VpcParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: /covid19l3/vpc
+      Name: /rcl-echo-cloud/vpc
       Type: String
       Value: !Ref vpc
       Description: VPC
@@ -252,7 +252,7 @@ Resources:
   SecurityGroupParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: /covid19l3/securitygroup
+      Name: /rcl-echo-cloud/securitygroup
       Type: String
       Value: !Ref SecurityGroup
       Description: SecurityGroup
@@ -260,7 +260,7 @@ Resources:
   PublicRouteTableParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: /covid19l3/publicroutetable
+      Name: /rcl-echo-cloud/publicroutetable
       Type: String
       Value: !Ref publicRouteTable
       Description: publicRouteTable
@@ -268,7 +268,7 @@ Resources:
   Subnet1Parameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: /covid19l3/subnet1
+      Name: /rcl-echo-cloud/subnet1
       Type: String
       Value: !Ref publicSubnet1
       Description: Public Subnet1
@@ -276,7 +276,7 @@ Resources:
   Subnet2Parameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: /covid19l3/subnet2
+      Name: /rcl-echo-cloud/subnet2
       Type: String
       Value: !Ref publicSubnet2
       Description: Public Subnet2
@@ -284,7 +284,7 @@ Resources:
   LambdaSubnet1Parameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: /covid19l3/lambdasubnet1
+      Name: /rcl-echo-cloud/lambdasubnet1
       Type: String
       Value: !Ref lambdaSubnet1
       Description: lambda Subnet1
@@ -292,7 +292,7 @@ Resources:
   LambdaSubnet2Parameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: /covid19l3/lambdasubnet2
+      Name: /rcl-echo-cloud/lambdasubnet2
       Type: String
       Value: !Ref lambdaSubnet2
       Description: lambda Subnet2

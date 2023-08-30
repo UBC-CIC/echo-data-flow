@@ -1,5 +1,5 @@
 {
-    "bucketName": "covid-bucket-app",
+    "bucketName": "rcl-echo-cloud-bucket",
     "authPolicyName": "s3_amplify_6c60305c",
     "unauthPolicyName": "s3_amplify_6c60305c",
     "authRoleName": {

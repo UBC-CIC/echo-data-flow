@@ -11,11 +11,6 @@ import random
 import string
 import shutil
 
-# Configure logging with timestamp with info level
-# Set the logging to INFO
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-
 sqsEndpoint = "https://" + os.getenv('sqsEndpoint').split(":")[1]
 queueUrl = sqsEndpoint + "/" + os.getenv('queueName')
 

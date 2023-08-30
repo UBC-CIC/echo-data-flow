@@ -1,13 +1,12 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: EC2 Image Builder
 
-# Clarify where this is used and why
 Parameters:
   gitHubRepo:
     Type: String
-    Default: https://github.com/UBC-CIC/echo-data-flow/
+    Default: https://github.com/seanghaeli/rcl-echo-cloud
   gitHubBranch:
-    Default: feature/nima/initial_deployment_attempt
+    Default: master
     Type: String 
   Ec2KeyName:
     Type: AWS::EC2::KeyPair::KeyName
@@ -27,6 +26,16 @@ Resources:
       ManagedPolicyArns:
         - Fn::Sub: arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore
         - Fn::Sub: arn:${AWS::Partition}:iam::aws:policy/EC2InstanceProfileForImageBuilder
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+      Policies:
+        - PolicyName: ECRGetAuthorizationTokenPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: 
+                  - ecr:GetAuthorizationToken
+                Resource: "*"
       AssumeRolePolicyDocument:
         Statement:
           - Action:
@@ -52,6 +61,7 @@ Resources:
           - Action:
               - s3:PutObject
               - s3:GetObject
+              - s3:HeadBucket
             Effect: Allow
             Resource:
             - Fn::Join:
@@ -70,21 +80,21 @@ Resources:
   ContainerBuildComponent:
     Type: 'AWS::ImageBuilder::Component'
     Properties:
-      Name: !Sub Covid19-Model-Builder-${AWS::StackName}
+      Name: !Sub rcl-echo-cloud-Model-Builder-${AWS::StackName}
       Platform: 'Linux'
       Version: "1.0.0"
       Description:
         !Join
           - ''
-          - - 'Covid19-Component-'
+          - - 'rcl-echo-cloud-Component-'
             - !Ref gitHubBranch
       ChangeDescription: 'change-description'
       # Require one of 'Data' or 'Uri' for Component template
       Data: 
         !Sub 
           - |-
-            name: Covid19Model - InlineData
-            description: Covid19 Model Load
+            name: RclEchoCloudModel - InlineData
+            description: RclEchoCloud Model Load
             schemaVersion: 1.0
 
             phases:                       
@@ -100,28 +110,33 @@ Resources:
                           yum -y install https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
                           alias cp="cp -f"
                           cd /root 
-                          git clone ${gitHub} echoflow-app --branch ${gitBranch}
-                          cp /root/echoflow-app/backend/sqs-ec2/amazon-cloudwatch-agent.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
-                          cp /root/echoflow-app/backend/sqs-ec2/seelog.xml /etc/amazon/ssm/seelog.xml                          
-
+                          git clone ${gitHub} rcl-echo-cloud --branch ${gitBranch}
+                          cp /root/rcl-echo-cloud/backend/sqs-ec2/amazon-cloudwatch-agent.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+                          cp /root/rcl-echo-cloud/backend/sqs-ec2/seelog.xml /etc/amazon/ssm/seelog.xml                          
+                  - name: dockerlogin
+                    action: ExecuteBash
+                    inputs:
+                      commands:          
+                        - |
+                          aws ecr get-login-password --region ${awsRegion} | docker login --username AWS --password-stdin 114170599997.dkr.ecr.${awsRegion}.amazonaws.com
                   - name: dockerpull
                     action: ExecuteBash
                     inputs:
                       commands:          
-                        - docker pull ubcrcl/cuda-torch:latest
-                        - docker tag  ubcrcl/cuda-torch:latest cuda-torch:latest
+                        - docker pull 114170599997.dkr.ecr.${awsRegion}.amazonaws.com/view-classifier:latest
+                        - docker tag  114170599997.dkr.ecr.${awsRegion}.amazonaws.com/view-classifier:latest view-classifier:latest
           - gitHub: !Ref gitHubRepo
             gitBranch: !Ref gitHubBranch
-            awsRegion: !Sub '{AWS:Region}'
+            awsRegion: !Sub '${AWS::Region}'
 
   ImageRecipe:
     Type: 'AWS::ImageBuilder::ImageRecipe'
     Properties:
-      Name: !Sub Echo-Flow-Model-Recipe-${AWS::StackName}
+      Name: !Sub rcl-echo-cloud-Model-Recipe-${AWS::StackName}
       Description:
         !Join
           - ''
-          - - 'Echo-Flow-Recipe-'
+          - - 'rcl-echo-cloud-Recipe-'
             - !Ref gitHubBranch
       Version: '1.0.0'
       ParentImage: !Ref amazonLinuxAmi
@@ -131,18 +146,19 @@ Resources:
   InfrastructureConfiguration:
     Type: AWS::ImageBuilder::InfrastructureConfiguration
     Properties:
-      Name: !Sub EchoFlow-Model-Infrastructure-${AWS::StackName}
+      Name: !Sub rcl-echo-cloud-Model-Infrastructure-${AWS::StackName}
       Description:
         !Join
           - ''
-          - - 'EchoFlow-Infrastructure-'
+          - - 'rcl-echo-cloud-Infrastructure-'
             - !Ref gitHubBranch
       InstanceProfileName:
         Ref: ImageBuilderInstanceProfile
       # Set of one or more instance types to use when building the instance. Image Builder will select a type
       # based on availability.
       InstanceTypes:
-        - 't2.micro'
+        - 'g4dn.xlarge'
+        - 'g4dn.2xlarge'
       KeyPair: 
         Ref: Ec2KeyName
       # Specify an S3 bucket and EC2 Image Builder will save logs to the bucket.
@@ -155,11 +171,11 @@ Resources:
       TerminateInstanceOnFailure: false
       # If you do not have a default VPC or want to use a different VPC, you must specify the IDs of a subnet and one or more
       # security groups to be associated with the build instance.
-      SubnetId: '{{resolve:ssm:/Echo-Flow-Nima/subnet1:1}}' 
+      SubnetId: '{{resolve:ssm:/rcl-echo-cloud/subnet1:1}}' 
       SecurityGroupIds: 
-        - '{{resolve:ssm:/Echo-Flow-Nima/securitygroup:1}}'
+        - '{{resolve:ssm:/rcl-echo-cloud/securitygroup:1}}'
 
-  echoflowImage:
+  rclEchoCloudImage:
     Type: AWS::ImageBuilder::Image
     Properties:
       ImageRecipeArn:
@@ -167,14 +183,14 @@ Resources:
       InfrastructureConfigurationArn:
         Ref: InfrastructureConfiguration
 
-  echoflowImagePipeline:
+  rclEchoCloudImagePipeline:
     Type: 'AWS::ImageBuilder::ImagePipeline'
     Properties:
-      Name: !Sub Echo-Flow-ImagePipeline-${AWS::StackName}
+      Name: !Sub rcl-echo-cloud-ImagePipeline-${AWS::StackName}
       Description:
         !Join
           - ''
-          - - 'Echo-Flow-ImagePipeline-'
+          - - 'rcl-echo-cloud-ImagePipeline-'
             - !Ref gitHubBranch
       ImageRecipeArn: !Ref ImageRecipe
       InfrastructureConfigurationArn: !Ref InfrastructureConfiguration
@@ -185,8 +201,8 @@ Resources:
   ImageParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Description: Image Id for Echo-Flow
-      Name: !Sub /echoflow/${gitHubBranch}/imageid
+      Description: Image Id for rclEchoCloud
+      Name: !Sub /rcl-echo-cloud/${gitHubBranch}/imageid
       Type: String
       Value:
-        Fn::GetAtt: [echoflowImage, ImageId]
+        Fn::GetAtt: [rclEchoCloudImage, ImageId]

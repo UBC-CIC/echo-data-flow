@@ -4,7 +4,7 @@ Description: EC2 Image Builder
 Parameters:
   gitHubRepo:
     Type: String
-    Default: https://github.com/UBC-CIC/COVID19-L3-Net-APP
+    Default: https://github.com/seanghaeli/rcl-echo-cloud
   gitHubBranch:
     Default: master
     Type: String 
@@ -65,7 +65,7 @@ Resources:
     Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
     Properties: 
       CloudFrontOriginAccessIdentityConfig:
-        Comment: !Sub "Covid19 L3-net app for ${gitHubBranch} on ${s3Bucket}"
+        Comment: !Sub "rcl-echo-cloud for ${gitHubBranch} on ${s3Bucket}"
 
   cloudFront:
     Type: AWS::CloudFront::Distribution
@@ -124,17 +124,17 @@ Resources:
     Type: AWS::EC2::VPCEndpoint
     Properties:
       RouteTableIds:
-        - '{{resolve:ssm:/covid19l3/publicroutetable:1}}'
+        - '{{resolve:ssm:/rcl-echo-cloud/publicroutetable:1}}'
       ServiceName: !Sub 'com.amazonaws.${AWS::Region}.s3'
-      VpcId: '{{resolve:ssm:/covid19l3/vpc:1}}'
+      VpcId: '{{resolve:ssm:/rcl-echo-cloud/vpc:1}}'
 
   bucketParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: !Sub /covid19l3/${gitHubBranch}/s3Bucket
+      Name: !Sub /rcl-echo-cloud/${gitHubBranch}/s3Bucket
       Type: String
       Value: !Ref s3Bucket
-      Description: !Sub s3Bucket for covid19l3 ${gitHubBranch}
+      Description: !Sub s3Bucket for rcl-echo-cloud ${gitHubBranch}
 
 #
 #  EFS
@@ -150,23 +150,23 @@ Resources:
         - TransitionToIA: AFTER_7_DAYS
       FileSystemTags:
         - Key: Name
-          Value: Covid19App
+          Value: rcl-echo-cloudApp
 
   mountTargetAZ1:
     Type: AWS::EFS::MountTarget
     Properties:
       FileSystemId: !Ref FileSystemResource
-      SubnetId: '{{resolve:ssm:/covid19l3/lambdasubnet1:1}}'
+      SubnetId: '{{resolve:ssm:/rcl-echo-cloud/lambdasubnet1:1}}'
       SecurityGroups:
-      - '{{resolve:ssm:/covid19l3/securitygroup:1}}'
+      - '{{resolve:ssm:/rcl-echo-cloud/securitygroup:1}}'
 
   mountTargetAZ2:
     Type: AWS::EFS::MountTarget
     Properties:
       FileSystemId: !Ref FileSystemResource
-      SubnetId: '{{resolve:ssm:/covid19l3/lambdasubnet2:1}}'
+      SubnetId: '{{resolve:ssm:/rcl-echo-cloud/lambdasubnet2:1}}'
       SecurityGroups:
-      - '{{resolve:ssm:/covid19l3/securitygroup:1}}'
+      - '{{resolve:ssm:/rcl-echo-cloud/securitygroup:1}}'
 
   accessPointLambda:
     Type: AWS::EFS::AccessPoint
@@ -228,8 +228,8 @@ Resources:
           - InstanceType: g4dn.2xlarge
           - InstanceType: g4dn.4xlarge
       VPCZoneIdentifier:
-      - '{{resolve:ssm:/covid19l3/subnet1:1}}'
-      - '{{resolve:ssm:/covid19l3/subnet2:1}}'
+      - '{{resolve:ssm:/rcl-echo-cloud/subnet1:1}}'
+      - '{{resolve:ssm:/rcl-echo-cloud/subnet2:1}}'
 
   ScaleOutPolicy:
     Type: AWS::AutoScaling::ScalingPolicy
@@ -381,7 +381,7 @@ Resources:
             - ssm:GetParameters
             - ssm:GetParameter
             Effect: Allow
-            Resource: 'arn:aws:ssm:*:*:parameter/covid19l3*'
+            Resource: 'arn:aws:ssm:*:*:parameter/rcl-echo-cloud*'
           Version: '2012-10-17'
         PolicyName:
           Fn::Join:
@@ -483,11 +483,11 @@ Resources:
             - instanceProfile
             - Arn
         ImageId: 
-          !Sub '{{resolve:ssm:/covid19l3/${gitHubBranch}/imageid:1}}'
+          !Sub '{{resolve:ssm:/rcl-echo-cloud/${gitHubBranch}/imageid:1}}'
         KeyName: 
           Ref: Ec2KeyName
         SecurityGroupIds:
-          - '{{resolve:ssm:/covid19l3/securitygroup:1}}'
+          - '{{resolve:ssm:/rcl-echo-cloud/securitygroup:1}}'
         TagSpecifications:
         - ResourceType: instance
           Tags:
@@ -508,20 +508,20 @@ Resources:
                 aws configure set default.region ${awsRegion}
                 systemctl status amazon-ssm-agent
                 echo -------------- Git checkout and pull  --------------
-                cd /root/covid-19-app
+                cd /root/rcl-echo-cloud
                 git checkout ${gitBranch}
                 git pull 
                 echo -------------- cloudwatch agent  --------------          
-                cp /root/covid-19-app/backend/sqs-ec2/amazon-cloudwatch-agent.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
-                cp /root/covid-19-app/backend/sqs-ec2/seelog.xml /etc/amazon/ssm/seelog.xml
+                cp /root/rcl-echo-cloud/backend/sqs-ec2/amazon-cloudwatch-agent.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+                cp /root/rcl-echo-cloud/backend/sqs-ec2/seelog.xml /etc/amazon/ssm/seelog.xml
                 /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a stop
                 /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json -s                      
                 echo -------------- copying scripts  --------------
-                cp /root/covid-19-app/backend/sqs-ec2/spot-instance-interruption-notice-handler.service /etc/systemd/system/spot-instance-interruption-notice-handler.service
-                cp /root/covid-19-app/backend/sqs-ec2/worker.service /etc/systemd/system/worker.service
-                cp /root/covid-19-app/backend/sqs-ec2/spot-instance-interruption-notice-handler.sh /usr/local/bin/
-                sed -i "s|%BRANCH%|${gitBranch}|g" /root/covid-19-app/backend/sqs-ec2/worker.sh
-                cp /root/covid-19-app/backend/sqs-ec2/worker.sh /usr/local/bin
+                cp /root/rcl-echo-cloud/backend/sqs-ec2/spot-instance-interruption-notice-handler.service /etc/systemd/system/spot-instance-interruption-notice-handler.service
+                cp /root/rcl-echo-cloud/backend/sqs-ec2/worker.service /etc/systemd/system/worker.service
+                cp /root/rcl-echo-cloud/backend/sqs-ec2/spot-instance-interruption-notice-handler.sh /usr/local/bin/
+                sed -i "s|%BRANCH%|${gitBranch}|g" /root/rcl-echo-cloud/backend/sqs-ec2/worker.sh
+                cp /root/rcl-echo-cloud/backend/sqs-ec2/worker.sh /usr/local/bin
                 chmod +x /usr/local/bin/spot-instance-interruption-notice-handler.sh
                 chmod +x /usr/local/bin/worker.sh                          
                 echo "-------------- Starting worker --------------"
@@ -545,12 +545,12 @@ Resources:
           - !Ref 'AWS::Region'
           - .sqs
       SubnetIds:
-        - '{{resolve:ssm:/covid19l3/lambdasubnet1:1}}'
-        - '{{resolve:ssm:/covid19l3/lambdasubnet2:1}}'
-      VpcId: '{{resolve:ssm:/covid19l3/vpc:1}}'
+        - '{{resolve:ssm:/rcl-echo-cloud/lambdasubnet1:1}}'
+        - '{{resolve:ssm:/rcl-echo-cloud/lambdasubnet2:1}}'
+      VpcId: '{{resolve:ssm:/rcl-echo-cloud/vpc:1}}'
       VpcEndpointType: Interface
       SecurityGroupIds:
-        - '{{resolve:ssm:/covid19l3/securitygroup:1}}'
+        - '{{resolve:ssm:/rcl-echo-cloud/securitygroup:1}}'
       PrivateDnsEnabled: false
 
   sqsQueuePolicy:
@@ -573,47 +573,47 @@ Resources:
   sqsnameParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: !Sub /covid19l3/${gitHubBranch}/sqsname
+      Name: !Sub /rcl-echo-cloud/${gitHubBranch}/sqsname
       Type: String
       Value: 
         Fn::GetAtt: 
           - sqsQueue
           - QueueName
-      Description: !Sub SQS Queue Name for covid19l3 ${gitHubBranch}
+      Description: !Sub SQS Queue Name for rcl-echo-cloud ${gitHubBranch}
 
   sqsurlParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: !Sub /covid19l3/${gitHubBranch}/sqsurl
+      Name: !Sub /rcl-echo-cloud/${gitHubBranch}/sqsurl
       Type: String
       Value: 
         !Ref sqsQueue
-      Description: !Sub SQS Queue Url for covid19l3 ${gitHubBranch}
+      Description: !Sub SQS Queue Url for rcl-echo-cloud ${gitHubBranch}
 
   sqsvpceParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: !Sub /covid19l3/${gitHubBranch}/sqsvpce
+      Name: !Sub /rcl-echo-cloud/${gitHubBranch}/sqsvpce
       Type: String
       Value: 
         !Select [ 0 , !GetAtt sqsEndpoint.DnsEntries ] 
-      Description: !Sub SQS Queue Url for covid19l3 ${gitHubBranch}
+      Description: !Sub SQS Queue Url for rcl-echo-cloud ${gitHubBranch}
 
   cloudfrontParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: !Sub /covid19l3/${gitHubBranch}/cloudfrontdomain
+      Name: !Sub /rcl-echo-cloud/${gitHubBranch}/cloudfrontdomain
       Type: String
       Value: 
         Fn::GetAtt:
           - cloudFront
           - DomainName
-      Description: !Sub Cloudfront Domain for covid19l3 ${gitHubBranch}
+      Description: !Sub Cloudfront Domain for rcl-echo-cloud ${gitHubBranch}
 
   efsLambdaParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: !Sub /covid19l3/${gitHubBranch}/efslambdaarn
+      Name: !Sub /rcl-echo-cloud/${gitHubBranch}/efslambdaarn
       Type: String
       Value: 
         Fn::GetAtt: 
@@ -624,7 +624,7 @@ Resources:
   efsEc2Parameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: !Sub /covid19l3/${gitHubBranch}/efsec2arn
+      Name: !Sub /rcl-echo-cloud/${gitHubBranch}/efsec2arn
       Type: String
       Value: 
         Fn::GetAtt: 

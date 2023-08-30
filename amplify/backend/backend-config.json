@@ -1,13 +1,13 @@
 {
 	"auth": {
-		"covid19l3netapp416d186f": {
+		"rcl-echo-cloud416d186f": {
 			"service": "Cognito",
 			"providerPlugin": "awscloudformation",
 			"dependsOn": []
 		}
 	},
 	"storage": {
-		"covidApp": {
+		"rcl-echo-cloud": {
 			"service": "S3",
 			"providerPlugin": "awscloudformation"
 		}
