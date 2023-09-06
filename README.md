@@ -1,5 +1,11 @@
-# L3-net Web Application
+# Echo Cloud Application
 Echo Cloud is an automated application for the storage and processing of echocardiogram videos. When new data is passed to the application, it is passed to the deployed model (at this time the view-classifier) and the resulting output is securely stored. Substituting the deployed model can be done by following the deployment guide.
+
+# Usage
+
+Once the [Deployment Guide](./docs/deployment_guide.md) has been followed, one can use the application simply by uploading a file to S3 that is readable by your model (as for Aug 29, 2023 with the view-classifier mounted, this would be a .mat file). The application automatically passes the data to the mounted model, runs inference on it, and uploads the result to the ```/outputs``` folder of the project's S3 bucket.
+
+Find the name of the bucket by going to S3 Management Console page and copying the name of the associated bucket which will be of the following form: ```rcl-echo-cloud-imagebuilder-imagebuilderlogbucket-[unique identifier]```
 
 ## Stack
 
@@ -17,14 +23,11 @@ Echo Cloud is an automated application for the storage and processing of echocar
 To deploy this solution into your AWS Account please follow our [Deployment Guide](./docs/deployment_guide.md)
 
 # Authors
-The key contributors to this repository are:
-
-- From UBC CIC: Christian Castro, Katherine Chao, Liana Leung, Victoria Li, Scott McMillan, Arshia Moghimi, and Marianne Schroeder.
-- From UBC RCL: Sean Ghaeli, Nima Kondora, Samira Sojoudi
+The key contributors to this repository are Artur Rodrigues a Senior Solutions Architect from the AWS, Tim Esler and Brian Lee of Sapien ML.
 
 # Changelog
 * Aug 29, 2023: Initial release.
 
 # License
-This project is distributed under the  [Apache License 2.0](https://github.com/UBC-CIC/vgh-covid-19-ct-model/blob/master/LICENSE) 
+This project is distributed under the Apache License 2.0 license.
 
