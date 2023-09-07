@@ -22,7 +22,10 @@ Find the name of the bucket by going to S3 Management Console page and copying t
 To deploy this solution into your AWS Account please follow our [Deployment Guide](./docs/deployment_guide.md)
 
 # Authors
-The key contributors to this repository are Artur Rodrigues a Senior Solutions Architect from the AWS, Tim Esler and Brian Lee of Sapien ML.
+The key contributors to this repository are:
+
+- From UBC CIC: Christian Castro, Katherine Chao, Liana Leung, Victoria Li, Scott McMillan, Arshia Moghimi, and Marianne Schroeder.
+- From UBC RCL: Sean Ghaeli, Nima Kondora, Samira Sojoudi
 
 # Changelog
 * Aug 29, 2023: Initial release.
