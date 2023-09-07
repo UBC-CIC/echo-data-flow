@@ -13,7 +13,6 @@ Find the name of the bucket by going to S3 Management Console page and copying t
 * **Model** - The models were containerized and deployed to Amazon ECR public repositories. 
 * **Image** - As part of the infrastructure build, a custom AMI is created with model deployed in it to improve efficiency. 
 * **Model Processing** - In the back-end, it was essential to create a cost-effective solution as it uses GPU machines to run the model. It is inspired by an [AWS blog post](https://aws.amazon.com/blogs/compute/running-cost-effective-queue-workers-with-amazon-sqs-and-amazon-ec2-spot-instances/), which describes how to dynamically run EC2 Spot instances in response to the SQS messages, pulling the model docker image from Amazon Elastic Container Repository.
-* **Model Visualization** - Javascript plug-in displays the CT Scan image slices with the model results overlaid on top. 
 
 ## High level architecture
 
