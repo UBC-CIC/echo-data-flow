@@ -14,7 +14,7 @@
     "axios": ">=0.21.1",
     "core-js": "^3.6.5",
     "moment-timezone": "^0.5.31",
-    "quasar": "^1.12.8",
+    "quasar": "^2.32.2",
     "tiff.js": "^1.0.0",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",
